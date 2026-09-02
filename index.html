@@ -25,12 +25,37 @@ h1 { text-align: center; font-size: 22px; font-weight: 700; color: #fff; padding
 .song-card { background: #fff; border-radius: 10px; padding: 16px 14px; margin-bottom: 16px; }
 .song-title { font-size: 18px; font-weight: 700; color: #667eea; margin-bottom: 4px; }
 .song-singer { font-size: 13px; color: #888; margin-bottom: 12px; }
-.video-wrap { width: 100%; border-radius: 6px; overflow: hidden; background: #000; margin-bottom: 10px; }
-.video-wrap iframe { width: 100%; height: 220px; border: none; }
+.video-wrap { width: 100%; border-radius: 6px; overflow: hidden; background: #000; margin-bottom: 10px; position: relative; }
+.video-wrap iframe { width: 100%; height: 220px; border: none; display: block; }
+.video-placeholder { width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; background: #1a1a2e; color: #fff; font-size: 15px; cursor: pointer; flex-direction: column; }
+.video-placeholder .play-icon { font-size: 40px; margin-bottom: 8px; }
 .footer { text-align: center; font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 24px; }
+
+/* 加载提示 */
+.loading-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; transition: opacity 0.4s;
+}
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
+.loading-spinner {
+  width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: #fff; font-size: 16px; margin-top: 16px; }
 </style>
 </head>
 <body>
+
+<!-- 加载提示 -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">正在加载，请稍候...</div>
+</div>
+
 <h1>青彦老师50首带唱视频</h1>
 <div class="toc">
   <div class="toc-title">目录</div>
@@ -44,23 +69,65 @@ h1 { text-align: center; font-size: 22px; font-weight: 700; color: #fff; padding
   <div class="song-title">前门情思大碗茶</div>
   <div class="song-singer">京歌经典</div>
   <div class="video-wrap">
-    <iframe src="//player.bilibili.com/player.html?bvid=BV12J8u6LET6&page=1&high_quality=1" scrolling="no" frameborder="0" allowfullscreen="true"></iframe>
+    <div class="video-placeholder" data-src="//player.bilibili.com/player.html?bvid=BV12J8u6LET6&page=1&high_quality=1">
+      <div class="play-icon">▶</div>
+      <div>点击加载视频</div>
+    </div>
   </div>
 </div>
 <div class="song-card" id="song2">
   <div class="song-title">江山无限</div>
   <div class="song-singer">经典曲目</div>
   <div class="video-wrap">
-    <iframe src="//player.bilibili.com/player.html?bvid=BV1KJ8u6jE9N&page=1&high_quality=1" scrolling="no" frameborder="0" allowfullscreen="true"></iframe>
+    <div class="video-placeholder" data-src="//player.bilibili.com/player.html?bvid=BV1KJ8u6jE9N&page=1&high_quality=1">
+      <div class="play-icon">▶</div>
+      <div>点击加载视频</div>
+    </div>
   </div>
 </div>
 <div class="song-card" id="song3">
   <div class="song-title">借酒</div>
   <div class="song-singer">戏腔曲目</div>
   <div class="video-wrap">
-    <iframe src="//player.bilibili.com/player.html?bvid=BV13D8R6QEnE&page=1&high_quality=1" scrolling="no" frameborder="0" allowfullscreen="true"></iframe>
+    <div class="video-placeholder" data-src="//player.bilibili.com/player.html?bvid=BV13D8R6QEnE&page=1&high_quality=1">
+      <div class="play-icon">▶</div>
+      <div>点击加载视频</div>
+    </div>
   </div>
 </div>
 <div class="footer">银发声乐直播间</div>
+
+<script>
+// 视频懒加载：点击占位符才加载iframe
+document.querySelectorAll('.video-placeholder').forEach(function(ph) {
+  ph.addEventListener('click', function() {
+    var src = this.getAttribute('data-src');
+    if (!src) return;
+    var iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.scrolling = 'no';
+    iframe.frameBorder = '0';
+    iframe.allowFullscreen = true;
+    this.parentNode.replaceChild(iframe, this);
+  });
+});
+
+// 加载提示：页面渲染完成后淡出
+window.addEventListener('load', function() {
+  var overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(function() { overlay.style.display = 'none'; }, 500);
+  }
+});
+// 兜底：如果load事件太慢，2秒后也隐藏
+setTimeout(function() {
+  var overlay = document.getElementById('loadingOverlay');
+  if (overlay && !overlay.classList.contains('hidden')) {
+    overlay.classList.add('hidden');
+    setTimeout(function() { overlay.style.display = 'none'; }, 500);
+  }
+}, 2000);
+</script>
 </body>
 </html>
